@@ -5,15 +5,24 @@ from django.db.models import Count
 
 
 class PostQuerySet(models.QuerySet):
-
     def year(self, year):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
         return posts_at_year
     def popular(self):
         posts_by_popular = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
         return posts_by_popular
-
-
+    def fetch_with_comments_count(self, posts):
+        most_popular_posts_ids = [post.id for post in posts]
+        posts_with_comments = Post.objects.filter(id__in=most_popular_posts_ids).annotate(
+            comments_count=Count('comments')
+        )
+        ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
+        count_for_id = dict(ids_and_comments)
+        for post in posts:
+            post.comments_count = count_for_id[post.id]
+        posts_with_comments = list(posts)
+        return posts_with_comments
+    
 
 class TagQuerySet(models.QuerySet):
     def popular(self):
@@ -50,6 +59,8 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post_detail', args={'slug': self.slug})
 
+    
+    
     class Meta:
         ordering = ['-published_at']
         verbose_name = 'пост'
