@@ -9,6 +9,10 @@ class PostQuerySet(models.QuerySet):
     def year(self, year):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
         return posts_at_year
+    def popular(self):
+        posts_by_popular = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
+        return posts_by_popular
+
 
 
 class TagQuerySet(models.QuerySet):
