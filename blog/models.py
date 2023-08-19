@@ -17,7 +17,7 @@ class PostQuerySet(models.QuerySet):
         return posts_by_popular
 
     def fetch_with_comments_count(self):
-        posts = self.filter()
+        posts = self
         posts_ids = [post.id for post in posts]
         posts_with_comments = Post.objects\
             .filter(id__in=posts_ids)\
