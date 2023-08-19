@@ -15,10 +15,11 @@ class PostQuerySet(models.QuerySet):
             .order_by('-likes_count')
         return posts_by_popular
 
-    def fetch_with_comments_count(self, posts):
-        most_popular_posts_ids = [post.id for post in posts]
+    def fetch_with_comments_count(self):
+        posts = self.filter()
+        posts_ids = [post.id for post in posts]
         posts_with_comments = Post.objects\
-            .filter(id__in=most_popular_posts_ids)\
+            .filter(id__in=posts_ids)\
             .annotate(comments_count=Count('comments'),
                       likes_count=Count('likes')
                       )
@@ -36,6 +37,8 @@ class TagQuerySet(models.QuerySet):
         tags_by_popular = self.annotate(tags_count=Count('posts'))\
             .order_by('-tags_count')
         return tags_by_popular
+    
+
 
 
 class Post(models.Model):
