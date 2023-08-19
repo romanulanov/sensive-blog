@@ -32,7 +32,7 @@ class PostQuerySet(models.QuerySet):
         posts_with_comments = list(posts)
         return posts_with_comments
     
-    def prefetch_tags(self):
+    def prefetch_tags_and_authors(self):
         prefetched_queryset =self.prefetch_related(
             'author',
             Prefetch('tags',
@@ -48,10 +48,6 @@ class TagQuerySet(models.QuerySet):
         tags_by_popular = self.annotate(tags_count=Count('posts'))\
             .order_by('-tags_count')
         return tags_by_popular
-    
-    
-    
-
 
 
 class Post(models.Model):
@@ -88,8 +84,6 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('post_detail', args={'slug': self.slug})
-
-    
 
 
 class Tag(models.Model):
